@@ -1,2 +1,1 @@
-# cmpe273submission
-Submission for Lab_2
+This includes code for assignment 1 and in addition the code for the GRPC server for the LAB-2 under cmpe273-lab-2/src/main/java/...

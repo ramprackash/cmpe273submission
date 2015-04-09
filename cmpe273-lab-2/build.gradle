@@ -1,0 +1,110 @@
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: "application"
+//apply plugin: "protobuf"
+
+compileScala.taskDependencies.values = compileScala.taskDependencies.values - 'compileJava'  
+compileJava.dependsOn compileScala 
+
+sourceSets.main.scala.srcDirs "src/main/java"
+sourceSets.main.java.srcDirs = []
+
+buildscript {
+    repositories {
+            maven { url "http://repo.spring.io/release" }
+            mavenCentral()
+            mavenLocal()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.6.RELEASE")
+        classpath("org.springframework.boot:spring-boot-starter-security:1.2.1.RELEASE")
+        classpath("org.springframework.data:spring-data-rest-webmvc:2.2.2.RELEASE")
+        classpath("ws.antonov.gradle.plugins:gradle-plugin-protobuf:0.9.1")
+        classpath("com.google.protobuf:protobuf-java:3.0.0-alpha-2")
+        classpath("io.grpc:grpc-stub:0.1.0-SNAPSHOT")
+        classpath("io.grpc:grpc-core:0.1.0-SNAPSHOT")
+        classpath("io.grpc:grpc-core:0.1.0-SNAPSHOT")
+    }
+}
+
+jar {
+    baseName = 'myvote'
+    version =  '0.1.0'
+}
+
+bootRepackage {
+    mainClass = 'controllers.SpringWebApplication'
+}
+mainClassName = 'controllers.SpringWebApplication'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://repo.spring.io/release" }
+    maven { url "http://repo1.maven.org/maven2"}
+ }
+
+//protobufCodeGenPlugins = ["java_plugin:./grpc/compiler/build/binaries/java_pluginExecutable/java_plugin"]
+
+dependencies {
+    //protobuf fileTree("src/main/proto")
+    compile("org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-security:1.2.1.RELEASE")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile("org.springframework.data:spring-data-rest-webmvc:2.2.2.RELEASE")
+    compile("com.gilt:jerkson_2.11:0.6.6")
+    compile("com.github.nscala-time:nscala-time_2.10:0.2.0")
+    compile("org.scala-lang:scala-library:2.11.5")
+    compile("org.webjars:bootstrap:3.1.1")
+    compile('com.google.protobuf:protobuf-java:3.0.0-alpha-2')
+    testCompile("junit:junit")
+    compile("io.grpc:grpc-stub:0.1.0-SNAPSHOT")
+    compile("io.grpc:grpc-netty:0.1.0-SNAPSHOT")
+}
+
+tasks.withType(ScalaCompile) {
+    // Additional parameters
+    scalaCompileOptions.additionalParameters = ["-feature"]
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+task protoGen(type:Exec) {
+    commandLine 'protoc', "-I./src/main/proto", "--java_out=./src/main/java", "--java_plugin_out=./src/main/java",  "--plugin=protoc-gen-java_plugin=./grpc/compiler/build/binaries/java_pluginExecutable/java_plugin", "./src/main/proto/polls.proto"
+    //commandLine 'protoc', "-I/home/rmohan/cmpe273submission/cmpe273-assignment1/src/main/proto", "--java_out=/home/rmohan/cmpe273submission/cmpe273-assignment1/build/src/main/java", "--java_plugin_out=/home/rmohan/cmpe273submission/cmpe273-assignment1/build/src/main/java",  "--plugin=protoc-gen-java_plugin=./grpc/compiler/build/binaries/java_pluginExecutable/java_plugin", "/home/rmohan/cmpe273submission/cmpe273-assignment1/src/main/proto/polls.proto"
+}
+
+compileScala.dependsOn protoGen
+
+task pollServer(type: JavaExec) {
+    main = "grpc.polls.PollsGRPCServer"
+    description = "Executes the GRPC server to support Poll creation."
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task pollClient(type: JavaExec) {
+    main = "grpc.polls.PollsGRPCClient"
+    description = "Executes the GRPC client to test Poll creation."
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Allow intellij projects to refer to generated-sources
+idea {
+    module {
+        // The whole build dir is excluded by default, but we need build/generated-sources,
+        // which contains the generated proto classes.
+        excludeDirs = [file('.gradle')]
+        if (buildDir.exists()) {
+            excludeDirs += files(buildDir.listFiles())
+            excludeDirs -= file("$buildDir/generated-sources")
+        }
+        //generatedSourceDirs += file("$srcDir/main/java/edu")
+    }
+}
+

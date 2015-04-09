@@ -1,0 +1,7 @@
+-o
+/home/rprakash/grpc-java/compiler/build/binaries/java_pluginExecutable/java_plugin
+/home/rprakash/grpc-java/compiler/build/objs/java_pluginExecutable/java_pluginCpp/c4j9iftyf8loa180reksq3mv/java_generator.o
+/home/rprakash/grpc-java/compiler/build/objs/java_pluginExecutable/java_pluginCpp/cp2vevv1s5fe0iyrg9z3imna9/java_generator.o
+/home/rprakash/grpc-java/compiler/build/objs/java_pluginExecutable/java_pluginCpp/14d8cvd51r6r2q8p7kzid1oe4/java_plugin.o
+-lprotoc
+-lprotobuf

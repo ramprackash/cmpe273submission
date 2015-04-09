@@ -1,0 +1,9 @@
+-x
+c++
+-std=c++11
+-c
+-I
+/home/rprakash/grpc-java/compiler/src/java_plugin/headers
+/home/rprakash/grpc-java/compiler/src/java_plugin/cpp/java_generator.h
+-o
+/home/rprakash/grpc-java/compiler/build/objs/java_pluginExecutable/java_pluginCpp/c4j9iftyf8loa180reksq3mv/java_generator.o
